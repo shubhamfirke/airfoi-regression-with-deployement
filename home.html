@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html >
+<!--From https://codepen.io/frytyler/pen/EGdtg-->
+<head>
+  <meta charset="UTF-8">
+  <title>ML API</title>
+  <link href='https://fonts.googleapis.com/css?family=Pacifico' rel='stylesheet' type='text/css'>
+<link href='https://fonts.googleapis.com/css?family=Arimo' rel='stylesheet' type='text/css'>
+<link href='https://fonts.googleapis.com/css?family=Hind:300' rel='stylesheet' type='text/css'>
+<link href='https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300' rel='stylesheet' type='text/css'>
+
+
+</head>
+
+<body>
+ <div class="login">
+	<h1>Airfoil Prediction</h1>
+
+     <!-- Main Input For Receiving Query to our ML -->
+    <form action="{{ url_for('predict')}}"method="post">
+      <input type="text" name="Frequency" placeholder="Frequency" required="required" /><br>
+    	<input type="text" name="Angle of attack" placeholder="Angle of attack" required="required" /><br>
+        <input type="text" name="Chord length" placeholder="Chord length" required="required" /><br>
+        <input type="text" name="Free-stream velocity" placeholder="Free-stream velocity" required="required" /><br>
+        <input type="text" name="Suction side" placeholder="Suction side" required="required" /><br>
+
+
+
+        <button type="submit" class="btn btn-primary btn-block btn-large">Predict</button>
+    </form>
+
+   <br>
+   <br>
+
+
+ </div>
+ {{prediction_text}}
+
+</body>
+
+</html>
+
+
+import pickle
+from flask import Flask,request,app,jsonify,url_for,render_tem
+import numpy as np
+import pandas as pd
+
+app=Flask(__name__)
+model=pickle.load(open('model.pkl','rb'))
+@app.route('/')
+def home():
+    #return 'Hello World'
+    return render_template('home.html')
+
+@app.route('/predict_api',methods=['POST'])
+def predict_api():
+
+    data=request.json['data']
+    print(data)
+    new_data=[list(data.values())]
+    output=model.predict(new_data)[0]
+    return jsonify(output)
